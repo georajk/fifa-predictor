@@ -163,9 +163,9 @@ export default async function Home() {
                         {placedBets.length === 0 ? (
                           <p className="mt-1 text-sm text-slate-500">No bets yet</p>
                         ) : (
-                          <ul className="mt-1 space-y-1">
-                            {placedBets.slice(0, 3).map((bet) => (
-                              <li key={`${bet.user_name}-${bet.prediction}-${bet.amount}`} className="text-sm text-slate-700">
+                          <ul className="mt-1 max-h-48 space-y-1 overflow-y-auto">
+                            {placedBets.map((bet) => (
+                              <li key={`${bet.user_name}-${bet.prediction}-${bet.amount}-${bet.match_id}`} className="text-sm text-slate-700">
                                 • {bet.user_name}: {bet.prediction} (£{bet.amount.toFixed(2)})
                               </li>
                             ))}
