@@ -2,6 +2,8 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import PlayerPicker from "./components/PlayerPicker";
 
+export const dynamic = "force-dynamic";
+
 interface MatchRow {
   id: string;
   home_team: string;
