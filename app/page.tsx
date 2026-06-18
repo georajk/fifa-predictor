@@ -10,22 +10,53 @@ interface MatchRow {
   result: string | null;
 }
 
+interface PredictionRow {
+  match_id: string;
+  user_name: string;
+  prediction: string;
+  amount: number;
+}
+
 interface LeaderboardEntry {
   user_name: string;
   score: number;
 }
 
 async function getMatches() {
-  const { data, error } = await supabase
-    .from("matches")
-    .select("id, home_team, away_team, kickoff, result")
-    .order("kickoff", { ascending: true });
+  const [{ data: matchesData, error: matchesError }, { data: predictionsData, error: predictionsError }] =
+    await Promise.all([
+      supabase
+        .from("matches")
+        .select("id, home_team, away_team, kickoff, result")
+        .order("kickoff", { ascending: true }),
+      supabase
+        .from("predictions")
+        .select("match_id, user_name, prediction, amount"),
+    ]);
 
-  if (error) {
-    throw new Error(error.message);
+  if (matchesError || predictionsError) {
+    throw new Error(matchesError?.message ?? predictionsError?.message ?? "Failed to load match data.");
   }
-  
-  return data ?? [];
+
+  const now = new Date();
+  const matches = (matchesData ?? []).filter((match) => new Date(match.kickoff) > now);
+
+  const predictionsByMatch = new Map<string, PredictionRow[]>();
+  (predictionsData ?? []).forEach((prediction) => {
+    const current = predictionsByMatch.get(prediction.match_id) ?? [];
+    current.push({
+      match_id: prediction.match_id,
+      user_name: prediction.user_name,
+      prediction: prediction.prediction,
+      amount: Number(prediction.amount ?? 0),
+    });
+    predictionsByMatch.set(prediction.match_id, current);
+  });
+
+  return {
+    matches,
+    predictionsByMatch,
+  };
 }
 
 async function getLeaderboard() {
@@ -70,7 +101,7 @@ function formatScore(score: number) {
 }
 
 export default async function Home() {
-  const matches = await getMatches();
+  const { matches, predictionsByMatch } = await getMatches();
   const leaderboard = await getLeaderboard();
 
   return (
@@ -108,23 +139,42 @@ export default async function Home() {
               {matches.length === 0 ? (
                 <p className="text-slate-600">No matches found. Seed your database with match records.</p>
               ) : (
-                matches.map((match) => (
-                  <Link
-                    key={match.id}
-                    href={`/match/${match.id}`}
-                    className="block rounded-3xl border border-slate-200 bg-gradient-to-r from-slate-50 to-indigo-50 p-5 transition hover:-translate-y-0.5 hover:border-indigo-200 hover:bg-white"
-                  >
-                    <h3 className="text-lg font-semibold text-slate-900">
-                      {match.home_team} vs {match.away_team}
-                    </h3>
-                    <p className="mt-1 text-sm text-slate-600">
-                      Kickoff: {new Date(match.kickoff).toLocaleString()}
-                    </p>
-                    <p className="mt-2 text-sm text-slate-700">
-                      Result: {match.result ?? "Pending"}
-                    </p>
-                  </Link>
-                ))
+                matches.map((match) => {
+                  const placedBets = predictionsByMatch.get(match.id) ?? [];
+
+                  return (
+                    <Link
+                      key={match.id}
+                      href={`/match/${match.id}`}
+                      className="block rounded-3xl border border-slate-200 bg-gradient-to-r from-slate-50 to-indigo-50 p-5 transition hover:-translate-y-0.5 hover:border-indigo-200 hover:bg-white"
+                    >
+                      <h3 className="text-lg font-semibold text-slate-900">
+                        {match.home_team} vs {match.away_team}
+                      </h3>
+                      <p className="mt-1 text-sm text-slate-600">
+                        Kickoff: {new Date(match.kickoff).toLocaleString()}
+                      </p>
+                      <p className="mt-2 text-sm text-slate-700">
+                        Result: {match.result ?? "Pending"}
+                      </p>
+
+                      <div className="mt-3 rounded-2xl bg-white/70 p-3">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Bets placed</p>
+                        {placedBets.length === 0 ? (
+                          <p className="mt-1 text-sm text-slate-500">No bets yet</p>
+                        ) : (
+                          <ul className="mt-1 space-y-1">
+                            {placedBets.slice(0, 3).map((bet) => (
+                              <li key={`${bet.user_name}-${bet.prediction}-${bet.amount}`} className="text-sm text-slate-700">
+                                • {bet.user_name}: {bet.prediction} (£{bet.amount.toFixed(2)})
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    </Link>
+                  );
+                })
               )}
             </div>
           </section>

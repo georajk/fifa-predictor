@@ -123,10 +123,13 @@ export default function PredictionForm({ match, locked }: PredictionFormProps) {
             onChange={handlePredictionChange}
             className="rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
           >
-            <option value="HOME">HOME</option>
-            <option value="DRAW">DRAW</option>
-            <option value="AWAY">AWAY</option>
+            <option value="HOME">HOME — {match.home_team}</option>
+            <option value="DRAW">DRAW — No winner</option>
+            <option value="AWAY">AWAY — {match.away_team}</option>
           </select>
+          <span className="text-xs text-slate-500">
+            HOME = {match.home_team} • AWAY = {match.away_team}
+          </span>
         </label>
 
         <button
