@@ -39,7 +39,13 @@ async function getMatches() {
   }
 
   const now = new Date();
-  const matches = (matchesData ?? []).filter((match) => new Date(match.kickoff) > now);
+  const startOfToday = new Date(now);
+  startOfToday.setHours(0, 0, 0, 0);
+
+  const matches = (matchesData ?? []).filter((match) => {
+    const kickoff = new Date(match.kickoff);
+    return kickoff >= startOfToday;
+  });
 
   const predictionsByMatch = new Map<string, PredictionRow[]>();
   (predictionsData ?? []).forEach((prediction) => {
@@ -148,9 +154,14 @@ export default async function Home() {
                       href={`/match/${match.id}`}
                       className="block rounded-3xl border border-slate-200 bg-gradient-to-r from-slate-50 to-indigo-50 p-5 transition hover:-translate-y-0.5 hover:border-indigo-200 hover:bg-white"
                     >
-                      <h3 className="text-lg font-semibold text-slate-900">
-                        {match.home_team} vs {match.away_team}
-                      </h3>
+                      <div className="flex items-center justify-between gap-3">
+                        <h3 className="text-lg font-semibold text-slate-900">
+                          {match.home_team} vs {match.away_team}
+                        </h3>
+                        <span className="rounded-full bg-indigo-100 px-2.5 py-1 text-xs font-bold text-indigo-700">
+                          Match #{match.id}
+                        </span>
+                      </div>
                       <p className="mt-1 text-sm text-slate-600">
                         Kickoff: {new Date(match.kickoff).toLocaleString()}
                       </p>
