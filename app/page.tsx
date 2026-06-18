@@ -85,16 +85,56 @@ async function getLeaderboard() {
   });
 
   const scoreMap = new Map<string, number>();
+  const predictionsByMatch = new Map<string, typeof predictions>();
+
   (predictions ?? []).forEach((prediction) => {
-    const result = resultByMatch.get(prediction.match_id);
-    const amount = Number(prediction.amount ?? 0);
+    const matchPredictions = predictionsByMatch.get(prediction.match_id) ?? [];
+    matchPredictions.push(prediction);
+    predictionsByMatch.set(prediction.match_id, matchPredictions);
+  });
+
+  predictionsByMatch.forEach((matchPredictions, matchId) => {
+    const result = resultByMatch.get(matchId);
 
     if (!result) {
       return;
     }
 
-    const delta = prediction.prediction === result ? amount : -amount;
-    scoreMap.set(prediction.user_name, (scoreMap.get(prediction.user_name) ?? 0) + delta);
+    const winningPredictions = matchPredictions.filter(
+      (prediction) => prediction.prediction === result,
+    );
+    const losingPredictions = matchPredictions.filter(
+      (prediction) => prediction.prediction !== result,
+    );
+
+    if (winningPredictions.length === 0) {
+      return;
+    }
+
+    const totalLostAmount = losingPredictions.reduce(
+      (sum, prediction) => sum + Number(prediction.amount ?? 0),
+      0,
+    );
+
+    if (totalLostAmount === 0) {
+      return;
+    }
+
+    const sharePerWinner = totalLostAmount / winningPredictions.length;
+
+    winningPredictions.forEach((prediction) => {
+      scoreMap.set(
+        prediction.user_name,
+        (scoreMap.get(prediction.user_name) ?? 0) + sharePerWinner,
+      );
+    });
+
+    losingPredictions.forEach((prediction) => {
+      scoreMap.set(
+        prediction.user_name,
+        (scoreMap.get(prediction.user_name) ?? 0) - Number(prediction.amount ?? 0),
+      );
+    });
   });
 
   return [...scoreMap.entries()]
