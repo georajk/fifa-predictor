@@ -101,41 +101,45 @@ export default async function PastPredictionsPage() {
                 key={matchId}
                 className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm"
               >
-                <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-                  <div>
-                    <p className="text-sm font-semibold text-slate-500">Match</p>
-                    <h2 className="text-xl font-semibold text-slate-900">{matchLabel}</h2>
-                  </div>
-                  <span className="rounded-full bg-slate-100 px-3 py-1 text-sm font-semibold text-slate-700">
-                    Result: {matchResult ?? "Pending"}
-                  </span>
-                </div>
-
-                <div className="mt-4 space-y-2">
-                  {matchRecords.map((record) => {
-                    const isWon = isMatchWonByPrediction(record.prediction);
-                    const statusLabel = isWon ? "Won" : "Lost";
-                    const statusClass = isWon
-                      ? "bg-emerald-100 text-emerald-800"
-                      : "bg-rose-100 text-rose-800";
-
-                    return (
-                      <div
-                        key={`${matchId}-${record.user_name}`}
-                        className="flex flex-col gap-2 rounded-2xl bg-slate-50 p-3 md:flex-row md:items-center md:justify-between"
-                      >
-                        <div>
-                          <p className="font-medium text-slate-900">{record.user_name}</p>
-                          <p className="text-sm text-slate-600">
-                            Predicted {record.prediction} · £{record.amount.toFixed(2)}
-                          </p>
-                        </div>
-                        <span className={`inline-flex w-fit rounded-full px-3 py-1 text-sm font-semibold ${statusClass}`}>
-                          {statusLabel}
-                        </span>
+                <div className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
+                  <div className="rounded-2xl bg-slate-50 p-4">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                      <div>
+                        <p className="text-sm font-semibold text-slate-500">Match</p>
+                        <h2 className="text-xl font-semibold text-slate-900">{matchLabel}</h2>
                       </div>
-                    );
-                  })}
+                      <span className="rounded-full bg-slate-100 px-3 py-1 text-sm font-semibold text-slate-700">
+                        Result: {matchResult ?? "Pending"}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    {matchRecords.map((record) => {
+                      const isWon = isMatchWonByPrediction(record.prediction);
+                      const statusLabel = isWon ? "Won" : "Lost";
+                      const statusClass = isWon
+                        ? "bg-emerald-100 text-emerald-800"
+                        : "bg-rose-100 text-rose-800";
+
+                      return (
+                        <div
+                          key={`${matchId}-${record.user_name}`}
+                          className="flex flex-col gap-2 rounded-2xl bg-slate-50 p-3 md:flex-row md:items-center md:justify-between"
+                        >
+                          <div>
+                            <p className="font-medium text-slate-900">{record.user_name}</p>
+                            <p className="text-sm text-slate-600">
+                              Predicted {record.prediction} · £{record.amount.toFixed(2)}
+                            </p>
+                          </div>
+                          <span className={`inline-flex w-fit rounded-full px-3 py-1 text-sm font-semibold ${statusClass}`}>
+                            {statusLabel}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               </article>
             );

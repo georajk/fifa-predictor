@@ -99,33 +99,37 @@ export default async function ActivePredictionsPage() {
                 key={matchId}
                 className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm"
               >
-                <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-                  <div>
-                    <p className="text-sm font-semibold text-slate-500">Match</p>
-                    <h2 className="text-xl font-semibold text-slate-900">{matchLabel}</h2>
-                    <p className="mt-1 text-sm text-slate-500">
-                      Kickoff: {new Date(firstRecord.match_kickoff).toLocaleString()}
-                    </p>
-                  </div>
-                  <span className="rounded-full bg-amber-100 px-3 py-1 text-sm font-semibold text-amber-800">
-                    Open
-                  </span>
-                </div>
-
-                <div className="mt-4 space-y-2">
-                  {matchRecords.map((record) => (
-                    <div
-                      key={`${matchId}-${record.user_name}`}
-                      className="flex flex-col gap-2 rounded-2xl bg-slate-50 p-3 md:flex-row md:items-center md:justify-between"
-                    >
+                <div className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
+                  <div className="rounded-2xl bg-slate-50 p-4">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                       <div>
-                        <p className="font-medium text-slate-900">{record.user_name}</p>
-                        <p className="text-sm text-slate-600">
-                          Predicted {record.prediction} · £{record.amount.toFixed(2)}
+                        <p className="text-sm font-semibold text-slate-500">Match</p>
+                        <h2 className="text-xl font-semibold text-slate-900">{matchLabel}</h2>
+                        <p className="mt-1 text-sm text-slate-500">
+                          Kickoff: {new Date(firstRecord.match_kickoff).toLocaleString()}
                         </p>
                       </div>
+                      <span className="rounded-full bg-amber-100 px-3 py-1 text-sm font-semibold text-amber-800">
+                        Open
+                      </span>
                     </div>
-                  ))}
+                  </div>
+
+                  <div className="space-y-2">
+                    {matchRecords.map((record) => (
+                      <div
+                        key={`${matchId}-${record.user_name}`}
+                        className="flex flex-col gap-2 rounded-2xl bg-slate-50 p-3 md:flex-row md:items-center md:justify-between"
+                      >
+                        <div>
+                          <p className="font-medium text-slate-900">{record.user_name}</p>
+                          <p className="text-sm text-slate-600">
+                            Predicted {record.prediction} · £{record.amount.toFixed(2)}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </article>
             );

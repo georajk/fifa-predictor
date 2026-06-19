@@ -55,43 +55,57 @@ export default async function MatchPage({
 
   const kickoff = new Date(match.kickoff);
   const locked = new Date() > kickoff;
+  const homeFlag = getFlagEmoji(match.home_team);
+  const awayFlag = getFlagEmoji(match.away_team);
+  const homeFlagIsUrl = homeFlag.startsWith("http");
+  const awayFlagIsUrl = awayFlag.startsWith("http");
 
   return (
-    <main className="mx-auto max-w-4xl p-6">
+    <main className="mx-auto max-w-6xl p-6">
       <div className="mb-8">
         <Link className="text-sm font-medium text-sky-700 hover:underline" href="/">
           ← Back to home
         </Link>
-        <h1 className="mt-4 text-3xl font-bold text-slate-900">
-          <span className="mr-2">{getFlagEmoji(match.home_team)}</span>
-          {match.home_team}
-          <span className="mx-2 text-slate-500">vs</span>
-          {match.away_team}
-          <span className="ml-2">{getFlagEmoji(match.away_team)}</span>
+        <h1 className="mt-4 flex flex-wrap items-center gap-2 text-3xl font-bold text-slate-900">
+          {homeFlagIsUrl ? (
+            <img src={homeFlag} alt={`${match.home_team} flag`} className="h-6 w-9 rounded-sm object-cover" />
+          ) : (
+            <span>{homeFlag}</span>
+          )}
+          <span>{match.home_team}</span>
+          <span className="text-slate-500">vs</span>
+          <span>{match.away_team}</span>
+          {awayFlagIsUrl ? (
+            <img src={awayFlag} alt={`${match.away_team} flag`} className="h-6 w-9 rounded-sm object-cover" />
+          ) : (
+            <span>{awayFlag}</span>
+          )}
         </h1>
         <p className="mt-2 text-sm text-slate-600">
           Kickoff: {kickoff.toLocaleString()}
         </p>
       </div>
 
-      <section className="mb-6 rounded-3xl border border-slate-200 bg-slate-50 p-5">
-        <h2 className="text-lg font-semibold text-slate-900">Predictions made</h2>
-        {(predictions ?? []).length === 0 ? (
-          <p className="mt-2 text-sm text-slate-500">No predictions yet for this match.</p>
-        ) : (
-          <ul className="mt-3 space-y-2">
-            {(predictions as PredictionSummary[]).map((prediction) => (
-              <li key={`${prediction.user_name}-${prediction.prediction}-${prediction.amount}`} className="rounded-2xl bg-white px-3 py-2 text-sm text-slate-700">
-                <span className="font-semibold text-slate-900">{prediction.user_name}</span>{" "}
-                picked <span className="font-medium">{prediction.prediction}</span> for
-                <span className="font-semibold text-slate-900"> £{prediction.amount.toFixed(2)}</span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+      <div className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
+        <PredictionForm match={match as MatchRow} locked={locked} />
 
-      <PredictionForm match={match as MatchRow} locked={locked} />
+        <section className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
+          <h2 className="text-lg font-semibold text-slate-900">Predictions made</h2>
+          {(predictions ?? []).length === 0 ? (
+            <p className="mt-2 text-sm text-slate-500">No predictions yet for this match.</p>
+          ) : (
+            <ul className="mt-3 space-y-2">
+              {(predictions as PredictionSummary[]).map((prediction) => (
+                <li key={`${prediction.user_name}-${prediction.prediction}-${prediction.amount}`} className="rounded-2xl bg-white px-3 py-2 text-sm text-slate-700">
+                  <span className="font-semibold text-slate-900">{prediction.user_name}</span>{" "}
+                  picked <span className="font-medium">{prediction.prediction}</span> for
+                  <span className="font-semibold text-slate-900"> £{prediction.amount.toFixed(2)}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      </div>
     </main>
   );
 }
