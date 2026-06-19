@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { getFlagEmoji } from "@/lib/teamFlags";
+import { formatKickoff } from "@/lib/date";
 import PlayerPicker from "./components/PlayerPicker";
 
 export const dynamic = "force-dynamic";
@@ -149,9 +150,22 @@ function formatScore(score: number) {
   return `${sign}£${abs.toFixed(2)}`;
 }
 
-export default async function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const resolvedSearchParams = await searchParams;
+  const pageSize = 5;
+  const requestedPage = Number(resolvedSearchParams.page ?? 1);
+
   const { matches, predictionsByMatch } = await getMatches();
   const leaderboard = await getLeaderboard();
+
+  const totalPages = Math.max(1, Math.ceil(matches.length / pageSize));
+  const currentPage = Math.min(Math.max(1, Number.isFinite(requestedPage) ? requestedPage : 1), totalPages);
+  const startIndex = (currentPage - 1) * pageSize;
+  const pagedMatches = matches.slice(startIndex, startIndex + pageSize);
 
   const championPicks = [
     { user: "Krishna", team: "Spain" },
@@ -218,6 +232,7 @@ export default async function Home() {
                 )}
               </div>
             </section>
+
           </div>
 
           <PlayerPicker />
@@ -234,74 +249,129 @@ export default async function Home() {
               {matches.length === 0 ? (
                 <p className="text-slate-600">No matches found. Seed your database with match records.</p>
               ) : (
-                matches.map((match) => {
-                  const placedBets = predictionsByMatch.get(match.id) ?? [];
+                <>
+                  {pagedMatches.map((match) => {
+                    const placedBets = predictionsByMatch.get(match.id) ?? [];
 
-                  return (
-                    <Link
-                      key={match.id}
-                      href={`/match/${match.id}`}
-                      className="block rounded-3xl border border-slate-200 bg-gradient-to-r from-slate-50 to-indigo-50 p-5 transition hover:-translate-y-0.5 hover:border-indigo-200 hover:bg-white"
-                    >
-                      <div className="flex items-center justify-between gap-3">
-                        <h3 className="text-lg font-semibold text-slate-900">
-                          <span className="flex flex-wrap items-center gap-2">
-                            <span className="inline-flex items-center gap-1">
-                              {(() => {
-                                const homeFlag = getFlagEmoji(match.home_team);
-                                const isHomeFlagUrl = homeFlag.startsWith("http");
-                                return isHomeFlagUrl ? (
-                                  <img src={homeFlag} alt={`${match.home_team} flag`} className="h-4 w-6 rounded-sm object-cover" />
-                                ) : (
-                                  <span>{homeFlag}</span>
-                                );
-                              })()}
-                              {match.home_team}
+                    return (
+                      <Link
+                        key={match.id}
+                        href={`/match/${match.id}`}
+                        className="block rounded-3xl border border-slate-200 bg-gradient-to-r from-slate-50 to-indigo-50 p-5 transition hover:-translate-y-0.5 hover:border-indigo-200 hover:bg-white"
+                      >
+                        <div className="flex items-center justify-between gap-3">
+                          <h3 className="text-lg font-semibold text-slate-900">
+                            <span className="flex flex-wrap items-center gap-2">
+                              <span className="inline-flex items-center gap-1">
+                                {(() => {
+                                  const homeFlag = getFlagEmoji(match.home_team);
+                                  const isHomeFlagUrl = homeFlag.startsWith("http");
+                                  return isHomeFlagUrl ? (
+                                    <img src={homeFlag} alt={`${match.home_team} flag`} className="h-4 w-6 rounded-sm object-cover" />
+                                  ) : (
+                                    <span>{homeFlag}</span>
+                                  );
+                                })()}
+                                {match.home_team}
+                              </span>
+                              <span className="text-slate-500">vs</span>
+                              <span className="inline-flex items-center gap-1">
+                                {(() => {
+                                  const awayFlag = getFlagEmoji(match.away_team);
+                                  const isAwayFlagUrl = awayFlag.startsWith("http");
+                                  return isAwayFlagUrl ? (
+                                    <img src={awayFlag} alt={`${match.away_team} flag`} className="h-4 w-6 rounded-sm object-cover" />
+                                  ) : (
+                                    <span>{awayFlag}</span>
+                                  );
+                                })()}
+                                {match.away_team}
+                              </span>
                             </span>
-                            <span className="text-slate-500">vs</span>
-                            <span className="inline-flex items-center gap-1">
-                              {(() => {
-                                const awayFlag = getFlagEmoji(match.away_team);
-                                const isAwayFlagUrl = awayFlag.startsWith("http");
-                                return isAwayFlagUrl ? (
-                                  <img src={awayFlag} alt={`${match.away_team} flag`} className="h-4 w-6 rounded-sm object-cover" />
-                                ) : (
-                                  <span>{awayFlag}</span>
-                                );
-                              })()}
-                              {match.away_team}
-                            </span>
+                          </h3>
+                          <span className="rounded-full bg-indigo-100 px-2.5 py-1 text-xs font-bold text-indigo-700">
+                            Match #{match.id}
                           </span>
-                        </h3>
-                        <span className="rounded-full bg-indigo-100 px-2.5 py-1 text-xs font-bold text-indigo-700">
-                          Match #{match.id}
-                        </span>
-                      </div>
-                      <p className="mt-1 text-sm text-slate-600">
-                        Kickoff: {new Date(match.kickoff).toLocaleString()}
-                      </p>
-                      <p className="mt-2 text-sm text-slate-700">
-                        Result: {match.result ?? "Pending"}
-                      </p>
+                        </div>
+                        <p className="mt-1 text-sm text-slate-600">
+                          Kickoff: {formatKickoff(match.kickoff)}
+                        </p>
+                        <p className="mt-2 text-sm text-slate-700">
+                          Result: {match.result ?? "Pending"}
+                        </p>
 
-                      <div className="mt-3 rounded-2xl bg-white/70 p-3">
-                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Bets placed</p>
-                        {placedBets.length === 0 ? (
-                          <p className="mt-1 text-sm text-slate-500">No bets yet</p>
-                        ) : (
-                          <ul className="mt-1 max-h-48 space-y-1 overflow-y-auto">
-                            {placedBets.map((bet) => (
-                              <li key={`${bet.user_name}-${bet.prediction}-${bet.amount}-${bet.match_id}`} className="text-sm text-slate-700">
-                                • {bet.user_name}: {bet.prediction} (£{bet.amount.toFixed(2)})
-                              </li>
-                            ))}
-                          </ul>
-                        )}
+                        <div className="mt-3 rounded-2xl bg-white/70 p-3">
+                          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Bets placed</p>
+                          {placedBets.length === 0 ? (
+                            <p className="mt-1 text-sm text-slate-500">No bets yet</p>
+                          ) : (
+                            <ul className="mt-1 max-h-48 space-y-1 overflow-y-auto">
+                              {placedBets.map((bet) => (
+                                <li key={`${bet.user_name}-${bet.prediction}-${bet.amount}-${bet.match_id}`} className="text-sm text-slate-700">
+                                  • {bet.user_name}: {bet.prediction} (£{bet.amount.toFixed(2)})
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </div>
+                      </Link>
+                    );
+                  })}
+
+                  {matches.length > pageSize && (
+                    <div className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                      <p className="text-sm text-slate-600">
+                        Showing {startIndex + 1}-{Math.min(startIndex + pageSize, matches.length)} of {matches.length}
+                      </p>
+                      <div className="flex items-center gap-2">
+                        <Link
+                          href={currentPage === 1 ? "/" : `/?page=${currentPage - 1}`}
+                          className={`rounded-full px-3 py-1.5 text-sm font-medium ${currentPage === 1 ? "cursor-not-allowed bg-slate-200 text-slate-500" : "bg-white text-slate-700 hover:bg-slate-100"}`}
+                        >
+                          Previous
+                        </Link>
+                        <span className="rounded-full bg-indigo-100 px-3 py-1.5 text-sm font-semibold text-indigo-700">
+                          {currentPage} / {totalPages}
+                        </span>
+                        <Link
+                          href={currentPage === totalPages ? `/?page=${totalPages}` : `/?page=${currentPage + 1}`}
+                          className={`rounded-full px-3 py-1.5 text-sm font-medium ${currentPage === totalPages ? "cursor-not-allowed bg-slate-200 text-slate-500" : "bg-white text-slate-700 hover:bg-slate-100"}`}
+                        >
+                          Next
+                        </Link>
                       </div>
-                    </Link>
-                  );
-                })
+                    </div>
+                  )}
+                </>
               )}
+            </div>
+          </section>
+
+          <section className="lg:hidden rounded-3xl border border-slate-200 bg-slate-50 p-6">
+            <h3 className="text-lg font-semibold text-slate-900">FIFA champions picks</h3>
+            <div className="mt-4 space-y-2">
+              {championPicks.map((pick) => {
+                const flagValue = getFlagEmoji(pick.team);
+                const isFlagUrl = flagValue.startsWith("http");
+
+                return (
+                  <div key={`${pick.user}-${pick.team}`} className="flex items-center justify-between rounded-2xl bg-white px-3 py-2.5">
+                    <span className="text-sm font-medium text-slate-900">{pick.user}</span>
+                    <span className="flex items-center gap-1 text-sm text-slate-600">
+                      {isFlagUrl ? (
+                        <img
+                          src={flagValue}
+                          alt={`${pick.team} flag`}
+                          className="h-4 w-6 rounded-sm object-cover"
+                        />
+                      ) : (
+                        <span>{flagValue}</span>
+                      )}
+                      <span>{pick.team}</span>
+                    </span>
+                  </div>
+                );
+              })}
             </div>
           </section>
         </section>

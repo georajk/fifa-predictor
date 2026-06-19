@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
 import { supabase } from "@/lib/supabase";
+import { formatKickoff } from "@/lib/date";
 
 const players = ["Geo", "Krishna", "Rahul","Tom"];
 const storageKey = "fifa-predictor-user";
@@ -123,7 +124,7 @@ export default function PredictionForm({ match, locked }: PredictionFormProps) {
     <section className="rounded-3xl border border-slate-200 bg-white/95 p-6 shadow-sm shadow-slate-200/50">
       <h2 className="text-xl font-semibold text-slate-900">Submit your prediction</h2>
       <p className="mt-2 text-sm text-slate-600">
-        {match.home_team} vs {match.away_team} • Kickoff {new Date(match.kickoff).toLocaleString()}
+        {match.home_team} vs {match.away_team} • Kickoff {formatKickoff(match.kickoff)}
       </p>
       <form className="mt-6 space-y-5" onSubmit={handleSubmit}>
         <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">

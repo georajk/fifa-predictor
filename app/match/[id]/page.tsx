@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { getFlagEmoji } from "@/lib/teamFlags";
+import { formatKickoff } from "@/lib/date";
 import PredictionForm from "../../components/PredictionForm";
 
 interface MatchRow {
@@ -82,7 +83,7 @@ export default async function MatchPage({
           )}
         </h1>
         <p className="mt-2 text-sm text-slate-600">
-          Kickoff: {kickoff.toLocaleString()}
+          Kickoff: {formatKickoff(kickoff)}
         </p>
       </div>
 
