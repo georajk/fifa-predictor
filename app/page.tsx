@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import { getFlagEmoji } from "@/lib/teamFlags";
 import PlayerPicker from "./components/PlayerPicker";
 
 export const dynamic = "force-dynamic";
@@ -152,6 +153,13 @@ export default async function Home() {
   const { matches, predictionsByMatch } = await getMatches();
   const leaderboard = await getLeaderboard();
 
+  const championPicks = [
+    { user: "Krishna", team: "Spain" },
+    { user: "Rahul", team: "Argentina" },
+    { user: "Tom", team: "France" },
+    { user: "Geo", team: "England" },
+  ];
+
   return (
     <main className="mx-auto max-w-6xl p-6">
       <div className="mb-8 flex flex-col gap-4">
@@ -176,6 +184,9 @@ export default async function Home() {
           </Link>
           <Link href="/leaderboard" className="rounded-full border border-indigo-200 bg-white px-4 py-2 font-medium text-indigo-700 transition hover:bg-indigo-50">
             Leaderboard
+          </Link>
+          <Link href="/winner-predictions" className="rounded-full border border-indigo-200 bg-white px-4 py-2 font-medium text-indigo-700 transition hover:bg-indigo-50">
+            Winner predictions
           </Link>
         </div>
       </div>
@@ -234,7 +245,33 @@ export default async function Home() {
                     >
                       <div className="flex items-center justify-between gap-3">
                         <h3 className="text-lg font-semibold text-slate-900">
-                          {match.home_team} vs {match.away_team}
+                          <span className="flex flex-wrap items-center gap-2">
+                            <span className="inline-flex items-center gap-1">
+                              {(() => {
+                                const homeFlag = getFlagEmoji(match.home_team);
+                                const isHomeFlagUrl = homeFlag.startsWith("http");
+                                return isHomeFlagUrl ? (
+                                  <img src={homeFlag} alt={`${match.home_team} flag`} className="h-4 w-6 rounded-sm object-cover" />
+                                ) : (
+                                  <span>{homeFlag}</span>
+                                );
+                              })()}
+                              {match.home_team}
+                            </span>
+                            <span className="text-slate-500">vs</span>
+                            <span className="inline-flex items-center gap-1">
+                              {(() => {
+                                const awayFlag = getFlagEmoji(match.away_team);
+                                const isAwayFlagUrl = awayFlag.startsWith("http");
+                                return isAwayFlagUrl ? (
+                                  <img src={awayFlag} alt={`${match.away_team} flag`} className="h-4 w-6 rounded-sm object-cover" />
+                                ) : (
+                                  <span>{awayFlag}</span>
+                                );
+                              })()}
+                              {match.away_team}
+                            </span>
+                          </span>
                         </h3>
                         <span className="rounded-full bg-indigo-100 px-2.5 py-1 text-xs font-bold text-indigo-700">
                           Match #{match.id}
@@ -291,6 +328,34 @@ export default async function Home() {
                 </div>
               ))
             )}
+          </div>
+
+          <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <h3 className="text-sm font-semibold text-slate-900">FIFA champions picks</h3>
+            <div className="mt-3 space-y-2">
+              {championPicks.map((pick) => {
+                const flagValue = getFlagEmoji(pick.team);
+                const isFlagUrl = flagValue.startsWith("http");
+
+                return (
+                  <div key={`${pick.user}-${pick.team}`} className="flex items-center justify-between rounded-xl bg-white px-3 py-2">
+                    <span className="text-sm font-medium text-slate-900">{pick.user}</span>
+                    <span className="flex items-center gap-1 text-sm text-slate-600">
+                      {isFlagUrl ? (
+                        <img
+                          src={flagValue}
+                          alt={`${pick.team} flag`}
+                          className="h-4 w-6 rounded-sm object-cover"
+                        />
+                      ) : (
+                        <span>{flagValue}</span>
+                      )}
+                      <span>{pick.team}</span>
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </section>
       </div>

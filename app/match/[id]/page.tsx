@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import { getFlagEmoji } from "@/lib/teamFlags";
 import PredictionForm from "../../components/PredictionForm";
 
 interface MatchRow {
@@ -62,7 +63,11 @@ export default async function MatchPage({
           ← Back to home
         </Link>
         <h1 className="mt-4 text-3xl font-bold text-slate-900">
-          {match.home_team} vs {match.away_team}
+          <span className="mr-2">{getFlagEmoji(match.home_team)}</span>
+          {match.home_team}
+          <span className="mx-2 text-slate-500">vs</span>
+          {match.away_team}
+          <span className="ml-2">{getFlagEmoji(match.away_team)}</span>
         </h1>
         <p className="mt-2 text-sm text-slate-600">
           Kickoff: {kickoff.toLocaleString()}

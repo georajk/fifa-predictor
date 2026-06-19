@@ -1,0 +1,74 @@
+const flagMap: Record<string, string> = {
+
+  argentina: "https://flagpedia.net/data/flags/h80/ar.webp",
+  algeria: "https://flagpedia.net/data/flags/h80/dz.webp",
+  australia: "https://flagpedia.net/data/flags/h80/au.webp",
+  austria: "https://flagpedia.net/data/flags/h80/at.webp",
+  belgium: "https://flagpedia.net/data/flags/h80/be.webp",
+  brazil: "https://flagpedia.net/data/flags/h80/br.webp",
+  bosnia: "https://flagpedia.net/data/flags/h80/ba.webp",
+  "bosnia and herzegovina": "https://flagpedia.net/data/flags/h80/ba.webp",
+  bulgaria: "https://flagpedia.net/data/flags/h80/bg.webp",
+  canada: "https://flagpedia.net/data/flags/h80/ca.webp",
+  "cape verde": "https://flagpedia.net/data/flags/h80/cv.webp",
+  "czech republic": "https://flagpedia.net/data/flags/h80/cz.webp",
+  
+  colombia: "https://flagpedia.net/data/flags/h80/co.webp",
+  croatia: "https://flagpedia.net/data/flags/h80/hr.webp",
+  curacao: "https://flagpedia.net/data/flags/h80/cw.webp",
+  denmark: "https://flagpedia.net/data/flags/h80/dk.webp",
+  "dr congo": "https://flagpedia.net/data/flags/h80/cd.webp",
+  egypt: "https://flagpedia.net/data/flags/h80/eg.webp",
+  england: "https://flagpedia.net/data/flags/h80/gb-eng.webp",
+  ecuador: "https://flagpedia.net/data/flags/h80/ec.webp",
+  france: "https://flagpedia.net/data/flags/h80/fr.webp",
+  germany: "https://flagpedia.net/data/flags/h80/de.webp",
+  ghana: "https://flagpedia.net/data/flags/h80/gh.webp",
+  haiti: "https://flagpedia.net/data/flags/h80/ht.webp",
+  iran: "https://flagpedia.net/data/flags/h80/ir.webp",
+  iraq: "https://flagpedia.net/data/flags/h80/iq.webp",
+  ireland: "https://flagpedia.net/data/flags/h80/ie.webp",
+  
+  "ivory coast": "https://flagpedia.net/data/flags/h80/ci.webp",
+  india: "https://flagpedia.net/data/flags/h80/in.webp",
+  italy: "https://flagpedia.net/data/flags/h80/it.webp",
+  japan: "https://flagpedia.net/data/flags/h80/jp.webp",
+  jordan: "https://flagpedia.net/data/flags/h80/jo.webp",
+  mexico: "https://flagpedia.net/data/flags/h80/mx.webp",
+  morocco: "https://flagpedia.net/data/flags/h80/ma.webp",
+  netherlands: "https://flagpedia.net/data/flags/h80/nl.webp",
+  "new zealand": "https://flagpedia.net/data/flags/h80/nz.webp",
+  nigeria: "https://flagpedia.net/data/flags/h80/ng.webp",
+  norway: "https://flagpedia.net/data/flags/h80/no.webp",
+  paraguay: "https://flagpedia.net/data/flags/h80/py.webp",
+  panama: "https://flagpedia.net/data/flags/h80/pa.webp",
+  peru: "https://flagpedia.net/data/flags/h80/pe.webp",
+  poland: "https://flagpedia.net/data/flags/h80/pl.webp",
+  qatar: "https://flagpedia.net/data/flags/h80/qa.webp",
+  portugal: "https://flagpedia.net/data/flags/h80/pt.webp",
+  "saudi arabia": "https://flagpedia.net/data/flags/h80/sa.webp",
+  senegal: "https://flagpedia.net/data/flags/h80/sn.webp",
+  serbia: "https://flagpedia.net/data/flags/h80/rs.webp",
+  "south africa": "https://flagpedia.net/data/flags/h80/za.webp",
+  "south korea": "https://flagpedia.net/data/flags/h80/kr.webp",
+  spain: "https://flagpedia.net/data/flags/h80/es.webp",
+  switzerland: "https://flagpedia.net/data/flags/h80/ch.webp",
+  sweden: "https://flagpedia.net/data/flags/h80/se.webp",
+  tunisia: "https://flagpedia.net/data/flags/h80/tn.webp",
+  turkey: "https://flagpedia.net/data/flags/h80/tr.webp",
+  uruguay: "https://flagpedia.net/data/flags/h80/uy.webp",
+  usa: "https://flagpedia.net/data/flags/h80/us.webp",
+  unitedstates: "https://flagpedia.net/data/flags/h80/us.webp",
+  "united states": "https://flagpedia.net/data/flags/h80/us.webp",
+    wales: "https://flagpedia.net/data/flags/h80/gb-wls.webp",
+    scotland: "https://flagpedia.net/data/flags/h80/gb-sct.webp",
+};
+
+export function getFlagEmoji(teamName: string | null | undefined) {
+  if (!teamName) {
+    return "";
+  }
+
+  const key = teamName.trim().toLowerCase();
+  return flagMap[key] ?? "";
+}
