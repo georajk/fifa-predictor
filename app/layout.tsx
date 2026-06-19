@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "FIFA Friends League",
+  title: "Pavadas FIFA League",
   description: "Predict FIFA match outcomes and track league scores with Supabase.",
 };
 

@@ -159,7 +159,7 @@ export default async function Home() {
           <span className="inline-flex rounded-full bg-white/15 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-indigo-50">
             League dashboard
           </span>
-          <h1 className="mt-3 text-4xl font-bold">FIFA Friends League</h1>
+          <h1 className="mt-3 text-4xl font-bold">Pavadas FIFA League</h1>
           <p className="mt-2 max-w-2xl text-sm text-indigo-50/90">
             Choose a player, predict match outcomes, and track your score across the league.
           </p>
@@ -171,11 +171,41 @@ export default async function Home() {
           <Link href="/past-predictions" className="rounded-full border border-indigo-200 bg-white px-4 py-2 font-medium text-indigo-700 transition hover:bg-indigo-50">
             Past predictions
           </Link>
+          <Link href="/active-predictions" className="rounded-full border border-indigo-200 bg-white px-4 py-2 font-medium text-indigo-700 transition hover:bg-indigo-50">
+            Active predictions
+          </Link>
         </div>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1.4fr_0.8fr]">
         <section className="space-y-6">
+          <div className="lg:hidden">
+            <section className="rounded-3xl border border-indigo-100 bg-white/95 p-6 shadow-sm shadow-indigo-100/50">
+              <h2 className="text-xl font-semibold text-slate-900">Leaderboard</h2>
+              <p className="mt-2 text-sm text-slate-600">Scores update once match results are entered.</p>
+
+              <div className="mt-6 space-y-3">
+                {leaderboard.length === 0 ? (
+                  <p className="text-slate-600">No scores yet. Enter match results in the admin panel.</p>
+                ) : (
+                  leaderboard.map((row) => (
+                    <div
+                      key={row.user_name}
+                      className="flex items-center justify-between rounded-2xl bg-gradient-to-r from-slate-50 to-indigo-50 px-4 py-3"
+                    >
+                      <span className="font-medium text-slate-900">{row.user_name}</span>
+                      <span
+                        className={row.score >= 0 ? "font-semibold text-emerald-700" : "font-semibold text-rose-700"}
+                      >
+                        {formatScore(row.score)}
+                      </span>
+                    </div>
+                  ))
+                )}
+              </div>
+            </section>
+          </div>
+
           <PlayerPicker />
 
           <section className="rounded-3xl border border-indigo-100 bg-white/95 p-6 shadow-sm shadow-indigo-100/50">
@@ -236,7 +266,7 @@ export default async function Home() {
           </section>
         </section>
 
-        <section className="rounded-3xl border border-indigo-100 bg-white/95 p-6 shadow-sm shadow-indigo-100/50">
+        <section className="hidden lg:block rounded-3xl border border-indigo-100 bg-white/95 p-6 shadow-sm shadow-indigo-100/50">
           <h2 className="text-xl font-semibold text-slate-900">Leaderboard</h2>
           <p className="mt-2 text-sm text-slate-600">Scores update once match results are entered.</p>
 

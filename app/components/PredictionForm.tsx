@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
 import { supabase } from "@/lib/supabase";
 
@@ -19,6 +20,7 @@ interface PredictionFormProps {
 }
 
 export default function PredictionForm({ match, locked }: PredictionFormProps) {
+  const router = useRouter();
   const [userName, setUserName] = useState("");
   const [prediction, setPrediction] = useState("HOME");
   const [amount, setAmount] = useState("0.50");
@@ -76,9 +78,38 @@ export default function PredictionForm({ match, locked }: PredictionFormProps) {
 
     if (error) {
       setStatus({ type: "error", message: `Failed to save: ${error.message}` });
-    } else {
-      setStatus({ type: "success", message: "Prediction saved successfully." });
+      return;
     }
+
+    setStatus({ type: "success", message: "Prediction saved successfully." });
+  };
+
+  const handleSaveAndExit = async () => {
+    if (!userName) {
+      setStatus({ type: "error", message: "Pick a player before submitting a prediction." });
+      return;
+    }
+
+    if (locked) {
+      setStatus({ type: "error", message: "Predictions are closed for this match." });
+      return;
+    }
+
+    setStatus({ type: "info", message: "Saving prediction..." });
+
+    const { error } = await supabase.from("predictions").insert({
+      user_name: userName,
+      match_id: match.id,
+      prediction,
+      amount: Number(amount),
+    });
+
+    if (error) {
+      setStatus({ type: "error", message: `Failed to save: ${error.message}` });
+      return;
+    }
+
+    router.push("/");
   };
 
   return (
@@ -132,13 +163,23 @@ export default function PredictionForm({ match, locked }: PredictionFormProps) {
           </span>
         </label>
 
-        <button
-          type="submit"
-          disabled={locked}
-          className="inline-flex items-center justify-center rounded-2xl bg-sky-700 px-5 py-3 text-sm font-semibold text-white transition hover:bg-sky-800 disabled:cursor-not-allowed disabled:bg-slate-300"
-        >
-          {locked ? "Predictions Closed" : "Save Prediction"}
-        </button>
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <button
+            type="submit"
+            disabled={locked}
+            className="inline-flex items-center justify-center rounded-2xl bg-sky-700 px-5 py-3 text-sm font-semibold text-white transition hover:bg-sky-800 disabled:cursor-not-allowed disabled:bg-slate-300"
+          >
+            {locked ? "Predictions Closed" : "Save Prediction"}
+          </button>
+          <button
+            type="button"
+            onClick={handleSaveAndExit}
+            disabled={locked}
+            className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:bg-slate-100"
+          >
+            {locked ? "Closed" : "Save & Exit"}
+          </button>
+        </div>
       </form>
 
       {status ? (
