@@ -12,18 +12,26 @@ interface MatchRow {
 }
 
 export default function AdminMatchResultForm({ matches }: { matches: MatchRow[] }) {
-  const [selectedMatchId, setSelectedMatchId] = useState(matches[0]?.id ?? "");
+  const defaultMatchId = matches[0]?.id ?? "";
+  const [selectedMatchId, setSelectedMatchId] = useState(defaultMatchId);
   const [result, setResult] = useState("HOME");
   const [status, setStatus] = useState<string>("");
 
   const selectedMatch = matches.find((match) => match.id === selectedMatchId);
+  const resultSummary = !selectedMatch
+    ? "Select a match to see the outcome"
+    : result === "HOME"
+      ? `${selectedMatch.home_team} (Home)`
+      : result === "AWAY"
+        ? `${selectedMatch.away_team} (Away)`
+        : "Draw / No winner";
 
   const handleMatchChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    setSelectedMatchId(event.target.value);
-    const nextMatch = matches.find((match) => match.id === event.target.value);
-    if (nextMatch?.result) {
-      setResult(nextMatch.result);
-    }
+    const nextMatchId = event.target.value;
+    setSelectedMatchId(nextMatchId);
+
+    const nextMatch = matches.find((match) => match.id === nextMatchId);
+    setResult(nextMatch?.result ?? "HOME");
   };
 
   const handleResultChange = (event: ChangeEvent<HTMLSelectElement>) => {
@@ -38,6 +46,16 @@ export default function AdminMatchResultForm({ matches }: { matches: MatchRow[] 
       return;
     }
 
+    if (!selectedMatch) {
+      setStatus("The selected match could not be found.");
+      return;
+    }
+
+    if (!["HOME", "DRAW", "AWAY"].includes(result)) {
+      setStatus("Please choose a valid result.");
+      return;
+    }
+
     setStatus("Updating result...");
 
     const { error } = await supabase
@@ -48,7 +66,8 @@ export default function AdminMatchResultForm({ matches }: { matches: MatchRow[] 
     if (error) {
       setStatus(`Failed to save result: ${error.message}`);
     } else {
-      setStatus("Result updated successfully. Refresh the page to see the latest value.");
+      setStatus("Result updated successfully. Refreshing the page...");
+      window.location.reload();
     }
   };
 
@@ -72,7 +91,9 @@ export default function AdminMatchResultForm({ matches }: { matches: MatchRow[] 
               onChange={handleMatchChange}
               className="rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
             >
-              <option value="">Select a match</option>
+              <option value="" disabled>
+                Select a match
+              </option>
               {matches.map((match) => (
                 <option key={match.id} value={match.id}>
                   {match.home_team} vs {match.away_team} • {new Date(match.kickoff).toLocaleString()}
@@ -88,11 +109,19 @@ export default function AdminMatchResultForm({ matches }: { matches: MatchRow[] 
               onChange={handleResultChange}
               className="rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
             >
-              <option value="HOME">HOME</option>
-              <option value="DRAW">DRAW</option>
-              <option value="AWAY">AWAY</option>
+              <option value="" disabled>
+                Select a result
+              </option>
+              <option value="HOME">HOME — {selectedMatch?.home_team ?? "Home team"}</option>
+              <option value="DRAW">DRAW — No winner</option>
+              <option value="AWAY">AWAY — {selectedMatch?.away_team ?? "Away team"}</option>
             </select>
           </label>
+
+          <div className="rounded-2xl border border-sky-100 bg-sky-50 px-4 py-3">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-700">Selected result</p>
+            <p className="mt-1 text-sm text-slate-900">{resultSummary}</p>
+          </div>
 
           <button className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-700" type="submit">
             Save result

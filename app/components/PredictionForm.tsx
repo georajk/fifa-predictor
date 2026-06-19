@@ -112,6 +112,13 @@ export default function PredictionForm({ match, locked }: PredictionFormProps) {
     router.push("/");
   };
 
+  const predictionSummary =
+    prediction === "HOME"
+      ? `${match.home_team} (Home)`
+      : prediction === "AWAY"
+        ? `${match.away_team} (Away)`
+        : "Draw / No winner";
+
   return (
     <section className="rounded-3xl border border-slate-200 bg-white/95 p-6 shadow-sm shadow-slate-200/50">
       <h2 className="text-xl font-semibold text-slate-900">Submit your prediction</h2>
@@ -163,19 +170,18 @@ export default function PredictionForm({ match, locked }: PredictionFormProps) {
           </span>
         </label>
 
+        <div className="rounded-2xl border border-sky-100 bg-sky-50 px-4 py-3">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-700">Selected prediction</p>
+          <p className="mt-1 text-sm text-slate-900">{predictionSummary}</p>
+        </div>
+
         <div className="flex flex-col gap-3 sm:flex-row">
+
           <button
             type="submit"
-            disabled={locked}
-            className="inline-flex items-center justify-center rounded-2xl bg-sky-700 px-5 py-3 text-sm font-semibold text-white transition hover:bg-sky-800 disabled:cursor-not-allowed disabled:bg-slate-300"
-          >
-            {locked ? "Predictions Closed" : "Save Prediction"}
-          </button>
-          <button
-            type="button"
             onClick={handleSaveAndExit}
             disabled={locked}
-            className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:bg-slate-100"
+            className="inline-flex items-center justify-center rounded-2xl bg-sky-700 px-5 py-3 text-sm font-semibold text-white transition hover:bg-sky-800 disabled:cursor-not-allowed disabled:bg-slate-300"
           >
             {locked ? "Closed" : "Save & Exit"}
           </button>

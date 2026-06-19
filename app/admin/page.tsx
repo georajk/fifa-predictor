@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import AdminMatchResultForm from "../components/AdminMatchResultForm";
 
@@ -28,6 +29,9 @@ export default async function AdminPage() {
   return (
     <main className="mx-auto max-w-5xl p-6">
       <div className="mb-8 space-y-4">
+        <Link href="/" className="text-sm font-medium text-sky-700 hover:underline">
+          ← Back to home
+        </Link>
         <h1 className="text-3xl font-bold text-slate-900">Admin Result Entry</h1>
         <p className="text-slate-600">
           Use this page to update match outcomes after the game finishes.
