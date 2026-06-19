@@ -169,10 +169,13 @@ export default async function Home() {
             Admin result entry
           </Link>
           <Link href="/past-predictions" className="rounded-full border border-indigo-200 bg-white px-4 py-2 font-medium text-indigo-700 transition hover:bg-indigo-50">
-            Past predictions
+            Final results & past predictions
           </Link>
           <Link href="/active-predictions" className="rounded-full border border-indigo-200 bg-white px-4 py-2 font-medium text-indigo-700 transition hover:bg-indigo-50">
             Active predictions
+          </Link>
+          <Link href="/leaderboard" className="rounded-full border border-indigo-200 bg-white px-4 py-2 font-medium text-indigo-700 transition hover:bg-indigo-50">
+            Leaderboard
           </Link>
         </div>
       </div>
