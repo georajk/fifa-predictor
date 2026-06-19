@@ -178,7 +178,7 @@ export default function PredictionForm({ match, locked }: PredictionFormProps) {
         <div className="flex flex-col gap-3 sm:flex-row">
 
           <button
-            type="submit"
+            type="button"
             onClick={handleSaveAndExit}
             disabled={locked}
             className="inline-flex items-center justify-center rounded-2xl bg-sky-700 px-5 py-3 text-sm font-semibold text-white transition hover:bg-sky-800 disabled:cursor-not-allowed disabled:bg-slate-300"
