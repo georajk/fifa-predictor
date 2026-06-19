@@ -168,6 +168,9 @@ export default async function Home() {
           <Link href="/admin" className="rounded-full border border-indigo-200 bg-white px-4 py-2 font-medium text-indigo-700 transition hover:bg-indigo-50">
             Admin result entry
           </Link>
+          <Link href="/past-predictions" className="rounded-full border border-indigo-200 bg-white px-4 py-2 font-medium text-indigo-700 transition hover:bg-indigo-50">
+            Past predictions
+          </Link>
         </div>
       </div>
 

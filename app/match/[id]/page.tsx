@@ -16,6 +16,12 @@ interface MatchPageProps {
   };
 }
 
+interface PredictionSummary {
+  user_name: string;
+  prediction: string;
+  amount: number;
+}
+
 export default async function MatchPage({
   params,
 }: {
@@ -28,6 +34,11 @@ export default async function MatchPage({
     .select("id, home_team, away_team, kickoff, result")
     .eq("id", id)
     .single();
+
+  const { data: predictions } = await supabase
+    .from("predictions")
+    .select("user_name, prediction, amount")
+    .eq("match_id", id);
 
   if (error || !match) {
     return (
@@ -57,6 +68,23 @@ export default async function MatchPage({
           Kickoff: {kickoff.toLocaleString()}
         </p>
       </div>
+
+      <section className="mb-6 rounded-3xl border border-slate-200 bg-slate-50 p-5">
+        <h2 className="text-lg font-semibold text-slate-900">Predictions made</h2>
+        {(predictions ?? []).length === 0 ? (
+          <p className="mt-2 text-sm text-slate-500">No predictions yet for this match.</p>
+        ) : (
+          <ul className="mt-3 space-y-2">
+            {(predictions as PredictionSummary[]).map((prediction) => (
+              <li key={`${prediction.user_name}-${prediction.prediction}-${prediction.amount}`} className="rounded-2xl bg-white px-3 py-2 text-sm text-slate-700">
+                <span className="font-semibold text-slate-900">{prediction.user_name}</span>{" "}
+                picked <span className="font-medium">{prediction.prediction}</span> for
+                <span className="font-semibold text-slate-900"> £{prediction.amount.toFixed(2)}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
 
       <PredictionForm match={match as MatchRow} locked={locked} />
     </main>
