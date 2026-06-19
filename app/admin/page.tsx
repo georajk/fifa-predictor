@@ -13,6 +13,7 @@ export default async function AdminPage() {
   const { data: matches, error } = await supabase
     .from("matches")
     .select("id, home_team, away_team, kickoff, result")
+    .is("result", null)
     .order("kickoff", { ascending: true });
 
   if (error) {

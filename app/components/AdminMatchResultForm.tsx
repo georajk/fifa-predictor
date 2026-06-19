@@ -59,40 +59,46 @@ export default function AdminMatchResultForm({ matches }: { matches: MatchRow[] 
         Choose a match and set the final result. Predictions are scored only after the result is saved.
       </p>
 
-      <form className="mt-6 space-y-5" onSubmit={handleSubmit}>
-        <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
-          Match
-          <select
-            value={selectedMatchId}
-            onChange={handleMatchChange}
-            className="rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
-          >
-            <option value="">Select a match</option>
-            {matches.map((match) => (
-              <option key={match.id} value={match.id}>
-                {match.home_team} vs {match.away_team} • {new Date(match.kickoff).toLocaleString()}
-              </option>
-            ))}
-          </select>
-        </label>
+      {matches.length === 0 ? (
+        <div className="mt-6 rounded-2xl bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          There are no matches waiting for a result right now.
+        </div>
+      ) : (
+        <form className="mt-6 space-y-5" onSubmit={handleSubmit}>
+          <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
+            Match
+            <select
+              value={selectedMatchId}
+              onChange={handleMatchChange}
+              className="rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
+            >
+              <option value="">Select a match</option>
+              {matches.map((match) => (
+                <option key={match.id} value={match.id}>
+                  {match.home_team} vs {match.away_team} • {new Date(match.kickoff).toLocaleString()}
+                </option>
+              ))}
+            </select>
+          </label>
 
-        <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
-          Result
-          <select
-            value={result}
-            onChange={handleResultChange}
-            className="rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
-          >
-            <option value="HOME">HOME</option>
-            <option value="DRAW">DRAW</option>
-            <option value="AWAY">AWAY</option>
-          </select>
-        </label>
+          <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
+            Result
+            <select
+              value={result}
+              onChange={handleResultChange}
+              className="rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
+            >
+              <option value="HOME">HOME</option>
+              <option value="DRAW">DRAW</option>
+              <option value="AWAY">AWAY</option>
+            </select>
+          </label>
 
-        <button className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-700" type="submit">
-          Save result
-        </button>
-      </form>
+          <button className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-700" type="submit">
+            Save result
+          </button>
+        </form>
+      )}
 
       {status ? (
         <p className="mt-4 rounded-2xl bg-slate-100 px-4 py-3 text-sm text-slate-900">{status}</p>
