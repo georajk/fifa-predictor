@@ -21,11 +21,6 @@ interface PredictionFormProps {
   predictionCutoff: string;
 }
 
-interface ExistingPrediction {
-  prediction: string;
-  amount: number;
-}
-
 export default function PredictionForm({ match, locked, predictionCutoff }: PredictionFormProps) {
   const router = useRouter();
   const [userName, setUserName] = useStoredPlayer();
@@ -55,50 +50,40 @@ export default function PredictionForm({ match, locked, predictionCutoff }: Pred
     }
 
     if (locked) {
-      setStatus({ type: "error", message: "Predictions are closed for this match." });
+      setStatus({ type: "error", message: "Predictions and edits are closed for this match." });
       return false;
     }
 
     setStatus({ type: "info", message: "Saving prediction..." });
 
-    const { error } = await supabase.from("predictions").insert({
-      user_name: userName,
-      match_id: match.id,
-      prediction,
-      amount: Number(amount),
-    });
+    const { data: existingPrediction } = await supabase
+      .from("predictions")
+      .select("prediction")
+      .eq("user_name", userName)
+      .eq("match_id", match.id)
+      .maybeSingle();
+
+    const { error } = await supabase.from("predictions").upsert(
+      {
+        user_name: userName,
+        match_id: match.id,
+        prediction,
+        amount: Number(amount),
+      },
+      { onConflict: "user_name,match_id" },
+    );
 
     if (error) {
-      if (error.code === "23505") {
-        const { data: duplicatePrediction } = await supabase
-          .from("predictions")
-          .select("prediction, amount")
-          .eq("user_name", userName)
-          .eq("match_id", match.id)
-          .maybeSingle<ExistingPrediction>();
-
-        if (duplicatePrediction) {
-          setStatus({
-            type: "error",
-            message: `Duplicate record: ${userName} already picked ${duplicatePrediction.prediction} for £${Number(
-              duplicatePrediction.amount,
-            ).toFixed(2)}.`,
-          });
-          return false;
-        }
-
-        setStatus({
-          type: "error",
-          message: "Duplicate record: this player already has a prediction for this match.",
-        });
-        return false;
-      }
-
       setStatus({ type: "error", message: `Failed to save: ${error.message}` });
       return false;
     }
 
-    setStatus({ type: "success", message: "Prediction saved successfully." });
+    setStatus({
+      type: "success",
+      message: existingPrediction
+        ? "Prediction updated successfully."
+        : "Prediction saved successfully.",
+    });
     return true;
   };
 
@@ -154,8 +139,9 @@ export default function PredictionForm({ match, locked, predictionCutoff }: Pred
           >
             <option value="0.50">£0.50</option>
             <option value="1.00">£1.00</option>
-            <option value="1.00">£2.00</option>
-            <option value="1.00">£3.00</option>
+            <option value="2.00">£2.00</option>
+            <option value="3.00">£3.00</option>
+            <option value="5.00">£5.00</option>
           </select>
         </label>
 
@@ -191,7 +177,7 @@ export default function PredictionForm({ match, locked, predictionCutoff }: Pred
             disabled={locked}
             className="inline-flex items-center justify-center rounded-2xl bg-sky-700 px-5 py-3 text-sm font-semibold text-white transition hover:bg-sky-800 disabled:cursor-not-allowed disabled:bg-slate-300"
           >
-            {locked ? "Closed" : "Save & Exit"}
+            {locked ? "Closed" : "Save / Update & Exit"}
           </button>
         </div>
       </form>
@@ -211,7 +197,7 @@ export default function PredictionForm({ match, locked, predictionCutoff }: Pred
       ) : null}
 
       {locked ? (
-        <p className="mt-4 text-sm text-amber-700">Predictions are locked for this match.</p>
+        <p className="mt-4 text-sm text-amber-700">Predictions and edits are locked for this match.</p>
       ) : null}
     </section>
   );
