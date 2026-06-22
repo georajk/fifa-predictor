@@ -55,9 +55,15 @@ export default async function MatchPage({
   }
 
   const kickoff = new Date(match.kickoff);
+  const now = new Date();
+  const hasPredictions = (predictions ?? []).length > 0;
   const predictionCutoff = new Date(kickoff);
-  predictionCutoff.setMinutes(predictionCutoff.getMinutes() + 50);
-  const locked = new Date() > predictionCutoff;
+
+  if (!hasPredictions && now > kickoff) {
+    predictionCutoff.setMinutes(predictionCutoff.getMinutes() + 50);
+  }
+
+  const locked = now > predictionCutoff;
   const homeFlag = getFlagEmoji(match.home_team);
   const awayFlag = getFlagEmoji(match.away_team);
   const homeFlagIsUrl = homeFlag.startsWith("http");

@@ -49,9 +49,25 @@ export default function PredictionForm({ match, locked, predictionCutoff }: Pred
       return false;
     }
 
-    if (locked) {
-      setStatus({ type: "error", message: "Predictions and edits are closed for this match." });
-      return false;
+    const now = new Date();
+    const cutoff = new Date(predictionCutoff);
+
+    if (locked || now > cutoff) {
+      const lateCutoff = new Date(match.kickoff);
+      lateCutoff.setMinutes(lateCutoff.getMinutes() + 50);
+
+      const { count } = await supabase
+        .from("predictions")
+        .select("match_id", { count: "exact", head: true })
+        .eq("match_id", match.id);
+
+      const canUseLateWindow =
+        count === 0 && now > new Date(match.kickoff) && now <= lateCutoff;
+
+      if (!canUseLateWindow) {
+        setStatus({ type: "error", message: "Predictions and edits are closed for this match." });
+        return false;
+      }
     }
 
     setStatus({ type: "info", message: "Saving prediction..." });
