@@ -18,9 +18,15 @@ interface MatchProps {
 interface PredictionFormProps {
   match: MatchProps;
   locked: boolean;
+  predictionCutoff: string;
 }
 
-export default function PredictionForm({ match, locked }: PredictionFormProps) {
+interface ExistingPrediction {
+  prediction: string;
+  amount: number;
+}
+
+export default function PredictionForm({ match, locked, predictionCutoff }: PredictionFormProps) {
   const router = useRouter();
   const [userName, setUserName] = useStoredPlayer();
   const [prediction, setPrediction] = useState("HOME");
@@ -42,17 +48,15 @@ export default function PredictionForm({ match, locked }: PredictionFormProps) {
     setUserName(event.target.value);
   };
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
+  const savePrediction = async () => {
     if (!userName) {
       setStatus({ type: "error", message: "Pick a player before submitting a prediction." });
-      return;
+      return false;
     }
 
     if (locked) {
       setStatus({ type: "error", message: "Predictions are closed for this match." });
-      return;
+      return false;
     }
 
     setStatus({ type: "info", message: "Saving prediction..." });
@@ -65,39 +69,50 @@ export default function PredictionForm({ match, locked }: PredictionFormProps) {
     });
 
     if (error) {
+      if (error.code === "23505") {
+        const { data: duplicatePrediction } = await supabase
+          .from("predictions")
+          .select("prediction, amount")
+          .eq("user_name", userName)
+          .eq("match_id", match.id)
+          .maybeSingle<ExistingPrediction>();
+
+        if (duplicatePrediction) {
+          setStatus({
+            type: "error",
+            message: `Duplicate record: ${userName} already picked ${duplicatePrediction.prediction} for £${Number(
+              duplicatePrediction.amount,
+            ).toFixed(2)}.`,
+          });
+          return false;
+        }
+
+        setStatus({
+          type: "error",
+          message: "Duplicate record: this player already has a prediction for this match.",
+        });
+        return false;
+      }
+
       setStatus({ type: "error", message: `Failed to save: ${error.message}` });
-      return;
+      return false;
     }
 
     setStatus({ type: "success", message: "Prediction saved successfully." });
+    return true;
+  };
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    await savePrediction();
   };
 
   const handleSaveAndExit = async () => {
-    if (!userName) {
-      setStatus({ type: "error", message: "Pick a player before submitting a prediction." });
-      return;
+    const saved = await savePrediction();
+
+    if (saved) {
+      router.push("/");
     }
-
-    if (locked) {
-      setStatus({ type: "error", message: "Predictions are closed for this match." });
-      return;
-    }
-
-    setStatus({ type: "info", message: "Saving prediction..." });
-
-    const { error } = await supabase.from("predictions").insert({
-      user_name: userName,
-      match_id: match.id,
-      prediction,
-      amount: Number(amount),
-    });
-
-    if (error) {
-      setStatus({ type: "error", message: `Failed to save: ${error.message}` });
-      return;
-    }
-
-    router.push("/");
   };
 
   const predictionSummary =
@@ -139,6 +154,8 @@ export default function PredictionForm({ match, locked }: PredictionFormProps) {
           >
             <option value="0.50">£0.50</option>
             <option value="1.00">£1.00</option>
+            <option value="1.00">£2.00</option>
+            <option value="1.00">£3.00</option>
           </select>
         </label>
 
@@ -163,8 +180,11 @@ export default function PredictionForm({ match, locked }: PredictionFormProps) {
           <p className="mt-1 text-sm text-slate-900">{predictionSummary}</p>
         </div>
 
-        <div className="flex flex-col gap-3 sm:flex-row">
+        <p className="text-sm text-slate-600">
+          Cut off time: <span className="font-semibold text-slate-900">{formatKickoff(predictionCutoff)}</span>
+        </p>
 
+        <div className="flex flex-col gap-3 sm:flex-row">
           <button
             type="button"
             onClick={handleSaveAndExit}

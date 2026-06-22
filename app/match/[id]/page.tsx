@@ -55,7 +55,9 @@ export default async function MatchPage({
   }
 
   const kickoff = new Date(match.kickoff);
-  const locked = new Date() > kickoff;
+  const predictionCutoff = new Date(kickoff);
+  predictionCutoff.setMinutes(predictionCutoff.getMinutes() + 50);
+  const locked = new Date() > predictionCutoff;
   const homeFlag = getFlagEmoji(match.home_team);
   const awayFlag = getFlagEmoji(match.away_team);
   const homeFlagIsUrl = homeFlag.startsWith("http");
@@ -88,7 +90,11 @@ export default async function MatchPage({
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
-        <PredictionForm match={match as MatchRow} locked={locked} />
+        <PredictionForm
+          match={match as MatchRow}
+          locked={locked}
+          predictionCutoff={predictionCutoff.toISOString()}
+        />
 
         <section className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
           <h2 className="text-lg font-semibold text-slate-900">Predictions made</h2>
