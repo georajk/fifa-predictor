@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import { formatKickoff } from "@/lib/date";
 
 interface PredictionRecord {
   user_name: string;
@@ -106,7 +107,7 @@ export default async function ActivePredictionsPage() {
                         <p className="text-sm font-semibold text-slate-500">Match</p>
                         <h2 className="text-xl font-semibold text-slate-900">{matchLabel}</h2>
                         <p className="mt-1 text-sm text-slate-500">
-                          Kickoff: {new Date(firstRecord.match_kickoff).toLocaleString()}
+                          Kickoff: {formatKickoff(firstRecord.match_kickoff)}
                         </p>
                       </div>
                       <span className="rounded-full bg-amber-100 px-3 py-1 text-sm font-semibold text-amber-800">

@@ -1,12 +1,12 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
+import { useState, type ChangeEvent, type FormEvent } from "react";
 import { supabase } from "@/lib/supabase";
 import { formatKickoff } from "@/lib/date";
+import { useStoredPlayer } from "./useStoredPlayer";
 
 const players = ["Geo", "Krishna", "Rahul","Tom"];
-const storageKey = "fifa-predictor-user";
 
 interface MatchProps {
   id: string;
@@ -22,24 +22,13 @@ interface PredictionFormProps {
 
 export default function PredictionForm({ match, locked }: PredictionFormProps) {
   const router = useRouter();
-  const [userName, setUserName] = useState("");
+  const [userName, setUserName] = useStoredPlayer();
   const [prediction, setPrediction] = useState("HOME");
   const [amount, setAmount] = useState("0.50");
   const [status, setStatus] = useState<{
     type: "success" | "error" | "info";
     message: string;
   } | null>(null);
-
-  useEffect(() => {
-    const stored = window.localStorage.getItem(storageKey) ?? "";
-    setUserName(stored);
-  }, []);
-
-  useEffect(() => {
-    if (userName) {
-      window.localStorage.setItem(storageKey, userName);
-    }
-  }, [userName]);
 
   const handlePredictionChange = (event: ChangeEvent<HTMLSelectElement>) => {
     setPrediction(event.target.value);
@@ -50,9 +39,7 @@ export default function PredictionForm({ match, locked }: PredictionFormProps) {
   };
 
   const handlePlayerChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    const value = event.target.value;
-    setUserName(value);
-    window.localStorage.setItem(storageKey, value);
+    setUserName(event.target.value);
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {

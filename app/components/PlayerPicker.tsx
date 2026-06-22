@@ -1,22 +1,15 @@
 "use client";
 
-import { useEffect, useState, type ChangeEvent } from "react";
+import { type ChangeEvent } from "react";
+import { useStoredPlayer } from "./useStoredPlayer";
 
 const players = ["Geo", "Krishna", "Rahul","Tom"];
-const storageKey = "fifa-predictor-user";
 
 export default function PlayerPicker() {
-  const [userName, setUserName] = useState("");
-
-  useEffect(() => {
-    const stored = window.localStorage.getItem(storageKey) ?? "";
-    setUserName(stored);
-  }, []);
+  const [userName, setUserName] = useStoredPlayer();
 
   const handleChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    const nextUser = event.target.value;
-    setUserName(nextUser);
-    window.localStorage.setItem(storageKey, nextUser);
+    setUserName(event.target.value);
   };
 
   return (

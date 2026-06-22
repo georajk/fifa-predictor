@@ -2,6 +2,7 @@
 
 import { useState, type ChangeEvent, type FormEvent } from "react";
 import { supabase } from "@/lib/supabase";
+import { formatKickoff } from "@/lib/date";
 
 interface MatchRow {
   id: string;
@@ -96,7 +97,7 @@ export default function AdminMatchResultForm({ matches }: { matches: MatchRow[] 
               </option>
               {matches.map((match) => (
                 <option key={match.id} value={match.id}>
-                  {match.home_team} vs {match.away_team} • {new Date(match.kickoff).toLocaleString()}
+                  {match.home_team} vs {match.away_team} • {formatKickoff(match.kickoff)}
                 </option>
               ))}
             </select>
