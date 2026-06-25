@@ -58,6 +58,7 @@ const flagMap: Record<string, string> = {
   turkey: "https://flagpedia.net/data/flags/h80/tr.webp",
   uruguay: "https://flagpedia.net/data/flags/h80/uy.webp",
   usa: "https://flagpedia.net/data/flags/h80/us.webp",
+  uzbekistan: "https://flagpedia.net/data/flags/h80/uz.webp",
   unitedstates: "https://flagpedia.net/data/flags/h80/us.webp",
   "united states": "https://flagpedia.net/data/flags/h80/us.webp",
     wales: "https://flagpedia.net/data/flags/h80/gb-wls.webp",
