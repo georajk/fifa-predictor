@@ -74,6 +74,8 @@ export default function PredictionForm({ match, locked, predictionCutoff }: Pred
         match_id: match.id,
         prediction,
         amount: Number(amount),
+        
+        updated_at: new Date().toISOString(),
       },
       { onConflict: "user_name,match_id" },
     );
@@ -158,7 +160,7 @@ export default function PredictionForm({ match, locked, predictionCutoff }: Pred
             className="rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
           >
             <option value="HOME">HOME — {match.home_team}</option>
-            <option value="DRAW">DRAW — No winner</option>
+            {/* <option value="DRAW">DRAW — No winner</option> */}
             <option value="AWAY">AWAY — {match.away_team}</option>
           </select>
           <span className="text-xs text-slate-500">
