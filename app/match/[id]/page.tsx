@@ -9,6 +9,7 @@ interface MatchRow {
   home_team: string;
   away_team: string;
   kickoff: string;
+  stage: string | null;
   result: string | null;
 }
 
@@ -33,7 +34,7 @@ export default async function MatchPage({
 
   const { data: match, error } = await supabase
     .from("matches")
-    .select("id, home_team, away_team, kickoff, result")
+    .select("id, home_team, away_team, kickoff, stage, result")
     .eq("id", id)
     .single();
 
@@ -92,6 +93,9 @@ export default async function MatchPage({
         </h1>
         <p className="mt-2 text-sm text-slate-600">
           Kickoff: {formatKickoff(kickoff)}
+        </p>
+        <p className="mt-1 text-sm text-slate-600">
+          Stage: {match.stage ?? "Stage TBD"}
         </p>
       </div>
 

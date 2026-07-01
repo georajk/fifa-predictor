@@ -11,6 +11,7 @@ interface MatchRow {
   home_team: string;
   away_team: string;
   kickoff: string;
+  stage: string | null;
   result: string | null;
 }
 
@@ -31,7 +32,7 @@ async function getMatches() {
     await Promise.all([
       supabase
         .from("matches")
-        .select("id, home_team, away_team, kickoff, result")
+        .select("id, home_team, away_team, kickoff, stage, result")
         .order("kickoff", { ascending: true }),
       supabase
         .from("predictions")
@@ -176,34 +177,7 @@ export default async function Home({
 
   return (
     <main className="mx-auto max-w-6xl p-6">
-      <div className="mb-8 flex flex-col gap-4">
-        <div className="rounded-3xl border border-indigo-100 bg-gradient-to-r from-indigo-600 via-violet-600 to-sky-500 p-6 text-white shadow-lg shadow-indigo-200/50">
-          <span className="inline-flex rounded-full bg-white/15 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-indigo-50">
-            League dashboard
-          </span>
-          <h1 className="mt-3 text-4xl font-bold">Pavadas FIFA League</h1>
-          <p className="mt-2 max-w-2xl text-sm text-indigo-50/90">
-            Choose a player, predict match outcomes, and track your score across the league.
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-3 text-sm text-slate-700">
-          <Link href="/admin" className="rounded-full border border-indigo-200 bg-white px-4 py-2 font-medium text-indigo-700 transition hover:bg-indigo-50">
-            Admin result entry
-          </Link>
-          <Link href="/past-predictions" className="rounded-full border border-indigo-200 bg-white px-4 py-2 font-medium text-indigo-700 transition hover:bg-indigo-50">
-            Final results & past predictions
-          </Link>
-          <Link href="/active-predictions" className="rounded-full border border-indigo-200 bg-white px-4 py-2 font-medium text-indigo-700 transition hover:bg-indigo-50">
-            Active predictions
-          </Link>
-          <Link href="/leaderboard" className="rounded-full border border-indigo-200 bg-white px-4 py-2 font-medium text-indigo-700 transition hover:bg-indigo-50">
-            Leaderboard
-          </Link>
-          <Link href="/winner-predictions" className="rounded-full border border-indigo-200 bg-white px-4 py-2 font-medium text-indigo-700 transition hover:bg-indigo-50">
-            Winner predictions
-          </Link>
-        </div>
-      </div>
+
 
       <div className="grid gap-6 lg:grid-cols-[1.4fr_0.8fr]">
         <section className="space-y-6">
@@ -297,6 +271,9 @@ export default async function Home({
                           Kickoff: {formatKickoff(match.kickoff)}
                         </p>
                         <p className="mt-2 text-sm text-slate-700">
+                          Stage: {match.stage ?? "Stage TBD"}
+                        </p>
+                        <p className="mt-1 text-sm text-slate-700">
                           Result: {match.result ?? "Pending"}
                         </p>
 

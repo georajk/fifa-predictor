@@ -7,13 +7,14 @@ interface MatchRow {
   home_team: string;
   away_team: string;
   kickoff: string;
+  stage: string | null;
   result: string | null;
 }
 
 export default async function AdminPage() {
   const { data: matches, error } = await supabase
     .from("matches")
-    .select("id, home_team, away_team, kickoff, result")
+    .select("id, home_team, away_team, kickoff, stage, result")
     .is("result", null)
     .order("kickoff", { ascending: true });
 

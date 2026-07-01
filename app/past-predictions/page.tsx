@@ -10,6 +10,7 @@ interface PredictionRecord {
   match_away_team: string;
   match_result: string | null;
   match_kickoff: string;
+  match_stage: string | null;
 }
 
 interface MatchSummary {
@@ -18,6 +19,7 @@ interface MatchSummary {
   away_team: string;
   result: string | null;
   kickoff: string;
+  stage: string | null;
 }
 
 export const dynamic = "force-dynamic";
@@ -26,7 +28,7 @@ export default async function PastPredictionsPage() {
   const [{ data: predictions, error: predictionsError }, { data: matches, error: matchesError }] =
     await Promise.all([
       supabase.from("predictions").select("user_name, prediction, amount, match_id"),
-      supabase.from("matches").select("id, home_team, away_team, result, kickoff"),
+      supabase.from("matches").select("id, home_team, away_team, result, kickoff, stage"),
     ]);
 
   if (predictionsError || matchesError) {
@@ -62,6 +64,7 @@ export default async function PastPredictionsPage() {
         match_away_team: match.away_team,
         match_result: match.result,
         match_kickoff: match.kickoff,
+        match_stage: match.stage,
       };
     })
     .filter(Boolean) as PredictionRecord[];
@@ -107,6 +110,7 @@ export default async function PastPredictionsPage() {
                       <div>
                         <p className="text-sm font-semibold text-slate-500">Match</p>
                         <h2 className="text-xl font-semibold text-slate-900">{matchLabel}</h2>
+                        <p className="mt-1 text-sm text-slate-500">Stage: {firstRecord.match_stage ?? "Stage TBD"}</p>
                       </div>
                       <span className="rounded-full bg-slate-100 px-3 py-1 text-sm font-semibold text-slate-700">
                         Result: {matchResult ?? "Pending"}

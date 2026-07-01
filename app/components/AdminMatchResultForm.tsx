@@ -2,13 +2,13 @@
 
 import { useState, type ChangeEvent, type FormEvent } from "react";
 import { supabase } from "@/lib/supabase";
-import { formatKickoff } from "@/lib/date";
 
 interface MatchRow {
   id: string;
   home_team: string;
   away_team: string;
   kickoff: string;
+  stage: string | null;
   result: string | null;
 }
 
@@ -59,13 +59,16 @@ export default function AdminMatchResultForm({ matches }: { matches: MatchRow[] 
 
     setStatus("Updating result...");
 
-    const { error } = await supabase
-      .from("matches")
-      .update({ result })
-      .eq("id", selectedMatchId);
+    const response = await fetch(`/api/matches/${selectedMatchId}/result`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ result }),
+    });
 
-    if (error) {
-      setStatus(`Failed to save result: ${error.message}`);
+    const payload = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      setStatus(`Failed to save result: ${payload.error ?? "Unknown error"}`);
     } else {
       setStatus("Result updated successfully. Refreshing the page...");
       window.location.reload();
@@ -97,7 +100,7 @@ export default function AdminMatchResultForm({ matches }: { matches: MatchRow[] 
               </option>
               {matches.map((match) => (
                 <option key={match.id} value={match.id}>
-                  {match.home_team} vs {match.away_team} • {formatKickoff(match.kickoff)}
+                  {match.home_team} vs {match.away_team} • {match.stage ?? "Stage TBD"} • {new Date(match.kickoff).toLocaleString()}
                 </option>
               ))}
             </select>
