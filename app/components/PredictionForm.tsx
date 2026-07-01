@@ -144,7 +144,7 @@ export default function PredictionForm({ match, locked, predictionCutoff }: Pred
             onChange={handleAmountChange}
             className="rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
           >
-            <option value="0.50">£0.50</option>
+           
             <option value="1.00">£1.00</option>
             <option value="2.00">£2.00</option>
             <option value="3.00">£3.00</option>

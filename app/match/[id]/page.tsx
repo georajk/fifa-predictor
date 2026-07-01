@@ -60,9 +60,7 @@ export default async function MatchPage({
   const hasPredictions = (predictions ?? []).length > 0;
   const predictionCutoff = new Date(kickoff);
 
-  if (!hasPredictions && now > kickoff) {
-    predictionCutoff.setMinutes(predictionCutoff.getMinutes() + 50);
-  }
+
 
   const locked = now > predictionCutoff;
   const homeFlag = getFlagEmoji(match.home_team);
