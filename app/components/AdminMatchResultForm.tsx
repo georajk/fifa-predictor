@@ -59,20 +59,19 @@ export default function AdminMatchResultForm({ matches }: { matches: MatchRow[] 
 
     setStatus("Updating result...");
 
-    const response = await fetch(`/api/matches/${selectedMatchId}/result`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ result }),
-    });
+    const { error } = await supabase
+      .from("matches")
+      .update({ result })
+      .eq("id", selectedMatchId);
 
-    const payload = await response.json().catch(() => ({}));
-
-    if (!response.ok) {
-      setStatus(`Failed to save result: ${payload.error ?? "Unknown error"}`);
+    if (error) {
+      setStatus(`Failed to save result: ${error.message}`);
     } else {
-      setStatus("Result updated successfully. Refreshing the page...");
+      setStatus("Result updated successfully. Refresh the page to see the latest value.");
       window.location.reload();
     }
+
+
   };
 
   return (
