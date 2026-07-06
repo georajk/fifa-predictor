@@ -27,14 +27,7 @@ export default function AppHeader() {
             Choose a player, predict match outcomes, and track your score across the league.
           </p>
         </div>
-         <button
-          type="button"
-          onClick={() => setMenuOpen((open) => !open)}
-          className="rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
-        >
-          {menuOpen ? "Close menu" : "Menu"}
-        </button>
-        {menuOpen ? (
+        
         <div className="border-t border-slate-200 bg-slate-50/90">
           <nav className="mx-auto flex max-w-6xl flex-wrap gap-2 px-4 py-4 sm:px-6 lg:px-8">
             {links.map((link) => (
@@ -49,7 +42,6 @@ export default function AppHeader() {
             ))}
           </nav>
         </div>
-      ) : null}
       </div>
 
 
