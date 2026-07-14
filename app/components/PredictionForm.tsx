@@ -31,6 +31,10 @@ export default function PredictionForm({ match, locked, predictionCutoff }: Pred
     message: string;
   } | null>(null);
 
+  const now = new Date();
+  const cutoff = new Date(predictionCutoff);
+  const isLocked = locked || now > cutoff;
+
   const handlePredictionChange = (event: ChangeEvent<HTMLSelectElement>) => {
     setPrediction(event.target.value);
   };
@@ -49,14 +53,9 @@ export default function PredictionForm({ match, locked, predictionCutoff }: Pred
       return false;
     }
 
-    const now = new Date();
-    const cutoff = new Date(predictionCutoff);
-
-    if (locked ) {
-      
-        setStatus({ type: "error", message: "Predictions and edits are closed for this match." });
-        return false;
-      
+    if (isLocked) {
+      setStatus({ type: "error", message: "Predictions and edits are closed for this match." });
+      return false;
     }
 
     setStatus({ type: "info", message: "Saving prediction..." });
@@ -74,7 +73,6 @@ export default function PredictionForm({ match, locked, predictionCutoff }: Pred
         match_id: match.id,
         prediction,
         amount: Number(amount),
-        
         updated_at: new Date().toISOString(),
       },
       { onConflict: "user_name,match_id" },
@@ -93,6 +91,8 @@ export default function PredictionForm({ match, locked, predictionCutoff }: Pred
     });
     return true;
   };
+
+ 
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -118,7 +118,7 @@ export default function PredictionForm({ match, locked, predictionCutoff }: Pred
     <section className="rounded-3xl border border-slate-200 bg-white/95 p-6 shadow-sm shadow-slate-200/50">
       <h2 className="text-xl font-semibold text-slate-900">Submit your prediction</h2>
       <p className="mt-2 text-sm text-slate-600">
-        {match.home_team} vs {match.away_team} • Kickoff {formatKickoff(match.kickoff)}
+        {match.home_team} vs {match.away_team} • Kickoff {formatKickoff(predictionCutoff)}
       </p>
       <form className="mt-6 space-y-5" onSubmit={handleSubmit}>
         <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
@@ -126,7 +126,8 @@ export default function PredictionForm({ match, locked, predictionCutoff }: Pred
           <select
             value={userName}
             onChange={handlePlayerChange}
-            className="rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
+            disabled={isLocked}
+            className="rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100 disabled:cursor-not-allowed disabled:bg-slate-100"
           >
             <option value="">Choose a name</option>
             {players.map((player) => (
@@ -142,9 +143,10 @@ export default function PredictionForm({ match, locked, predictionCutoff }: Pred
           <select
             value={amount}
             onChange={handleAmountChange}
-            className="rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
+            disabled={isLocked}
+            className="rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100 disabled:cursor-not-allowed disabled:bg-slate-100"
           >
-            <option value="0.50">£0.50</option>
+           
             <option value="1.00">£1.00</option>
             <option value="2.00">£2.00</option>
             <option value="3.00">£3.00</option>
@@ -157,7 +159,8 @@ export default function PredictionForm({ match, locked, predictionCutoff }: Pred
           <select
             value={prediction}
             onChange={handlePredictionChange}
-            className="rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
+            disabled={isLocked}
+            className="rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100 disabled:cursor-not-allowed disabled:bg-slate-100"
           >
             <option value="HOME">HOME — {match.home_team}</option>
             {/* <option value="DRAW">DRAW — No winner</option> */}

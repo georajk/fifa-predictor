@@ -3,8 +3,7 @@ const kickoffFormatter = new Intl.DateTimeFormat("en-GB", {
   month: "short",
   day: "2-digit",
   hour: "2-digit",
-  minute: "2-digit",
-  timeZone: "UTC",
+  minute: "2-digit"
 });
 
 export function formatKickoff(value: string | Date) {
