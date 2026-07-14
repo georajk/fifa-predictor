@@ -32,7 +32,7 @@ export default function PredictionForm({ match, locked, predictionCutoff }: Pred
   } | null>(null);
 
   const now = new Date();
-  const cutoff = new Date(predictionCutoff);
+  const cutoff = match.kickoff ? new Date(match.kickoff) : new Date();
   const isLocked = locked || now > cutoff;
 
   const handlePredictionChange = (event: ChangeEvent<HTMLSelectElement>) => {
@@ -118,7 +118,7 @@ export default function PredictionForm({ match, locked, predictionCutoff }: Pred
     <section className="rounded-3xl border border-slate-200 bg-white/95 p-6 shadow-sm shadow-slate-200/50">
       <h2 className="text-xl font-semibold text-slate-900">Submit your prediction</h2>
       <p className="mt-2 text-sm text-slate-600">
-        {match.home_team} vs {match.away_team} • Kickoff {formatKickoff(predictionCutoff)}
+        {match.home_team} vs {match.away_team} • Kickoff {formatKickoff(match.kickoff)}
       </p>
       <form className="mt-6 space-y-5" onSubmit={handleSubmit}>
         <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
@@ -177,7 +177,7 @@ export default function PredictionForm({ match, locked, predictionCutoff }: Pred
         </div>
 
         <p className="text-sm text-slate-600">
-          Cut off time: <span className="font-semibold text-slate-900">{formatKickoff(predictionCutoff)}</span>
+          Cut off time: <span className="font-semibold text-slate-900">{formatKickoff(match.kickoff)}</span>
         </p>
 
         <div className="flex flex-col gap-3 sm:flex-row">
