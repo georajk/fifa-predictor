@@ -234,7 +234,7 @@ export default async function Home({
     { user: "Krishna", team: "Spain", position: 1, isEliminated: false },
     { user: "Rahul", team: "Argentina", position: 2, isEliminated: false },
     { user: "Tom", team: "France", position: 4, isEliminated: true },
-    { user: "Geo", team: "England", position: 2, isEliminated: false },
+    { user: "Geo", team: "England", position: 3, isEliminated: false },
   ];
 
   const positionStyles: Record<number, string> = {
