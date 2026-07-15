@@ -15,6 +15,24 @@ interface MatchRow {
   result: string | null;
 }
 
+const championPicks = [
+  { user_name: "Krishna", team: "Spain" },
+  { user_name: "Rahul", team: "Argentina" },
+  { user_name: "Tom", team: "France" },
+  { user_name: "Geo", team: "England" },
+] as const;
+
+const knockoutKeywords = ["round of 16", "quarter", "semi", "final", "knockout"];
+
+function isKnockoutStage(stage: string | null) {
+  if (!stage) {
+    return false;
+  }
+
+  const normalizedStage = stage.toLowerCase();
+  return knockoutKeywords.some((keyword) => normalizedStage.includes(keyword));
+}
+
 interface PredictionRow {
   match_id: string;
   user_name: string;
@@ -73,7 +91,7 @@ async function getMatches() {
 async function getLeaderboard() {
   const [{ data: predictions, error: predictionsError }, { data: matches, error: matchesError }] = await Promise.all([
     supabase.from("predictions").select("user_name, prediction, match_id, amount"),
-    supabase.from("matches").select("id, result"),
+    supabase.from("matches").select("id, home_team, away_team, kickoff, stage, result"),
   ]);
 
   if (predictionsError || matchesError) {
@@ -139,6 +157,51 @@ async function getLeaderboard() {
       );
     });
   });
+
+  const championByTeam = new Map<string, string[]>();
+  championPicks.forEach((pick) => {
+    const users = championByTeam.get(pick.team) ?? [];
+    users.push(pick.user_name);
+    championByTeam.set(pick.team, users);
+  });
+
+  (matches ?? [])
+    .filter((match) => match.result !== null && isKnockoutStage(match.stage))
+    .forEach((match) => {
+      const winningTeam =
+        match.result === "HOME"
+          ? match.home_team
+          : match.result === "AWAY"
+            ? match.away_team
+            : null;
+      const losingTeam =
+        match.result === "HOME"
+          ? match.away_team
+          : match.result === "AWAY"
+            ? match.home_team
+            : null;
+
+      if (!winningTeam || !losingTeam) {
+        return;
+      }
+
+      const penalizedUsers = championByTeam.get(losingTeam) ?? [];
+      const survivingUsers = championByTeam.get(winningTeam) ?? [];
+
+      if (penalizedUsers.length === 0 || survivingUsers.length === 0) {
+        return;
+      }
+
+      const sharePerSurvivor = 10 / survivingUsers.length;
+
+      penalizedUsers.forEach((userName) => {
+        scoreMap.set(userName, (scoreMap.get(userName) ?? 0) - 10);
+      });
+
+      survivingUsers.forEach((userName) => {
+        scoreMap.set(userName, (scoreMap.get(userName) ?? 0) + sharePerSurvivor);
+      });
+    });
 
   return [...scoreMap.entries()]
     .map(([user_name, score]) => ({ user_name, score }))
