@@ -225,18 +225,24 @@ export default async function Home({
 
   const { matches, predictionsByMatch } = await getMatches();
   const leaderboard = await getLeaderboard();
-
   const totalPages = Math.max(1, Math.ceil(matches.length / pageSize));
   const currentPage = Math.min(Math.max(1, Number.isFinite(requestedPage) ? requestedPage : 1), totalPages);
   const startIndex = (currentPage - 1) * pageSize;
   const pagedMatches = matches.slice(startIndex, startIndex + pageSize);
 
   const championPicks = [
-    { user: "Krishna", team: "Spain" },
-    { user: "Rahul", team: "Argentina" },
-    { user: "Tom", team: "France" },
-    { user: "Geo", team: "England" },
+    { user: "Krishna", team: "Spain", position: 1, isEliminated: false },
+    { user: "Rahul", team: "Argentina", position: 2, isEliminated: false },
+    { user: "Tom", team: "France", position: 4, isEliminated: true },
+    { user: "Geo", team: "England", position: 2, isEliminated: false },
   ];
+
+  const positionStyles: Record<number, string> = {
+    1: "bg-green-100 ring-green-200 text-green-900",
+    2: "bg-amber-100 ring-amber-200 text-amber-800",
+    3: "bg-orange-50 ring-orange-200 text-orange-800",
+    4: "bg-rose-50 ring-rose-200 text-rose-800",
+  };
 
   return (
     <main className="mx-auto max-w-6xl p-6">
@@ -393,11 +399,27 @@ export default async function Home({
               {championPicks.map((pick) => {
                 const flagValue = getFlagEmoji(pick.team);
                 const isFlagUrl = flagValue.startsWith("http");
+                const isEliminated = pick.isEliminated;
+                const positionColor = positionStyles[pick.position] ?? "bg-slate-50 ring-slate-200 text-slate-700";
 
                 return (
-                  <div key={`${pick.user}-${pick.team}`} className="flex items-center justify-between rounded-2xl bg-white px-3 py-2.5">
-                    <span className="text-sm font-medium text-slate-900">{pick.user}</span>
-                    <span className="flex items-center gap-1 text-sm text-slate-600">
+                  <div
+                    key={`${pick.user}-${pick.team}`}
+                    className={`flex items-center justify-between rounded-2xl px-3 py-2.5 ring-1 ${
+                      isEliminated ? "bg-rose-50 ring-rose-200" : positionColor
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className={`inline-flex h-7 min-w-7 items-center justify-center rounded-full px-2 text-[11px] font-bold ${
+                        isEliminated ? "bg-rose-100 text-rose-700" : "bg-white/80 text-slate-700"
+                      }`}>
+                        #{pick.position}
+                      </span>
+                      <span className={`text-sm font-medium ${isEliminated ? "text-rose-700" : "text-slate-900"}`}>
+                        {pick.user}
+                      </span>
+                    </div>
+                    <span className={`flex items-center gap-1 text-sm ${isEliminated ? "text-rose-700" : "text-slate-600"}`}>
                       {isFlagUrl ? (
                         <img
                           src={flagValue}
@@ -407,7 +429,7 @@ export default async function Home({
                       ) : (
                         <span>{flagValue}</span>
                       )}
-                      <span>{pick.team}</span>
+                      <span className={isEliminated ? "font-semibold" : ""}>{pick.team}</span>
                     </span>
                   </div>
                 );
@@ -446,11 +468,27 @@ export default async function Home({
               {championPicks.map((pick) => {
                 const flagValue = getFlagEmoji(pick.team);
                 const isFlagUrl = flagValue.startsWith("http");
+                const isEliminated = pick.isEliminated;
+                const positionColor = positionStyles[pick.position] ?? "bg-slate-50 ring-slate-200 text-slate-700";
 
                 return (
-                  <div key={`${pick.user}-${pick.team}`} className="flex items-center justify-between rounded-xl bg-white px-3 py-2">
-                    <span className="text-sm font-medium text-slate-900">{pick.user}</span>
-                    <span className="flex items-center gap-1 text-sm text-slate-600">
+                  <div
+                    key={`${pick.user}-${pick.team}`}
+                    className={`flex items-center justify-between rounded-xl px-3 py-2 ring-1 ${
+                      isEliminated ? "bg-rose-50 ring-rose-200" : positionColor
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className={`inline-flex h-7 min-w-7 items-center justify-center rounded-full px-2 text-[11px] font-bold ${
+                        isEliminated ? "bg-rose-100 text-rose-700" : "bg-white/80 text-slate-700"
+                      }`}>
+                        #{pick.position}
+                      </span>
+                      <span className={`text-sm font-medium ${isEliminated ? "text-rose-700" : "text-slate-900"}`}>
+                        {pick.user}
+                      </span>
+                    </div>
+                    <span className={`flex items-center gap-1 text-sm ${isEliminated ? "text-rose-700" : "text-slate-600"}`}>
                       {isFlagUrl ? (
                         <img
                           src={flagValue}
@@ -460,7 +498,7 @@ export default async function Home({
                       ) : (
                         <span>{flagValue}</span>
                       )}
-                      <span>{pick.team}</span>
+                      <span className={isEliminated ? "font-semibold" : ""}>{pick.team}</span>
                     </span>
                   </div>
                 );
